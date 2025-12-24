@@ -674,77 +674,17 @@ function renderSunarpState(state?: ServiceState, onRefresh?: () => void) {
   if (state.error) return <ThemedText style={styles.errorText}>{state.error}</ThemedText>;
   const parsed: SunarpData | null | undefined = state.parsed;
   if (!parsed) return renderGenericServiceState(state, onRefresh);
-  const propietarios = parsed.propietarios || [];
-  const coincidencias = parsed.coincidencias || [];
-  const ownersToShow = coincidencias.length ? coincidencias : propietarios;
+  const hasImage = Boolean(parsed.imagenResultado);
 
   return (
     <View style={styles.soatContent}>
-      <View style={styles.metaRow}>
-        {parsed.placa ? <View style={styles.metaPill}><ThemedText style={styles.metaText}>Placa {parsed.placa}</ThemedText></View> : null}
-        {parsed.vin ? <View style={styles.metaPill}><ThemedText style={styles.metaText}>VIN {parsed.vin}</ThemedText></View> : null}
-        {parsed.partida ? <View style={styles.metaPill}><ThemedText style={styles.metaText}>Partida {parsed.partida}</ThemedText></View> : null}
-        {parsed.oficina ? <View style={styles.metaPill}><ThemedText style={styles.metaText}>{parsed.oficina}</ThemedText></View> : null}
-      </View>
-      <View style={styles.metaRow}>
-        <View style={styles.metaPill}>
-          <ThemedText style={styles.metaText}>
-            {coincidencias.length
-              ? `Coincidencias DNI: ${coincidencias.length}`
-              : `Propietarios: ${propietarios.length}`}
-          </ThemedText>
-        </View>
-        {parsed.dniPropietario ? (
-          <View style={styles.metaPill}>
-            <ThemedText style={styles.metaText}>DNI base: {parsed.dniPropietario}</ThemedText>
-          </View>
-        ) : null}
-        {parsed.propietarioUsado ? (
-          <View style={styles.metaPill}>
-            <ThemedText style={styles.metaText}>{parsed.propietarioUsado}</ThemedText>
-          </View>
-        ) : null}
-      </View>
-
-      {ownersToShow.length ? (
-        ownersToShow.map((prop, idx) => (
-          <View key={`${prop.documento || prop.nombre}-${idx}`} style={styles.ownerRow}>
-            <ThemedText style={styles.ownerName}>{prop.nombre || 'Propietario'}</ThemedText>
-            <View style={styles.ownerBadges}>
-              {prop.documento ? (
-                <View style={styles.metaPill}>
-                  <ThemedText style={styles.metaText}>Doc: {prop.documento}</ThemedText>
-                </View>
-              ) : null}
-              {prop.porcentaje ? (
-                <View style={styles.metaPill}>
-                  <ThemedText style={styles.metaText}>{prop.porcentaje}</ThemedText>
-                </View>
-              ) : null}
-              {prop.condicion ? (
-                <View style={styles.metaPill}>
-                  <ThemedText style={styles.metaText}>{prop.condicion}</ThemedText>
-                </View>
-              ) : null}
-            </View>
-            {prop.reniec?.nombres ? (
-              <ThemedText style={styles.ownerMeta}>
-                DNI Perú: {prop.reniec.nombres} {prop.reniec.apellidoPaterno}{' '}
-                {prop.reniec.apellidoMaterno}
-              </ThemedText>
-            ) : null}
-          </View>
-        ))
-      ) : (
-        <ThemedText style={styles.serviceDetail}>Sin propietarios en la respuesta</ThemedText>
-      )}
-      {parsed.imagenResultado ? (
+      {hasImage ? (
         <Image source={{ uri: parsed.imagenResultado }} style={styles.sunarpImage} contentFit="contain" />
-      ) : null}
-      {parsed.imagenResultado ? (
-        <ThemedText style={styles.personDetail}>
-          Imagen del resultado SUNARP generada en la consulta.
-        </ThemedText>
+      ) : (
+        <ThemedText style={styles.serviceDetail}>Sin imagen de SUNARP en la respuesta</ThemedText>
+      )}
+      {hasImage ? (
+        <ThemedText style={styles.personDetail}>Imagen del resultado SUNARP generada en la consulta.</ThemedText>
       ) : null}
       {onRefresh ? (
         <Pressable style={styles.secondaryButton} onPress={onRefresh}>
